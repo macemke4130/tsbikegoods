@@ -12,7 +12,8 @@ export const schema = buildSchema(`
   type Query {
     greet: String
     userLogin (emailAddress: String!, userPassword: String!): AuthObject
-    userInfo (id: Int!): User
+    userInfo (displayName: String!): User
+    userProducts (userId: Int!): [Product]
     authorizeJWT (jwt: String!): Boolean
     productDetails (id: Int!): Product
     paymentMethods (userId: Int!): PaymentMethod
@@ -113,8 +114,6 @@ type User {
   emailAddress: String
   userPassword: String
   displayName: String
-  firstName: String
-  lastName: String
 }
 
 type PaymentMethod {
@@ -186,6 +185,10 @@ export const root = {
 
     return loginObject;
   },
+  userProducts: async (args, req) => {
+    const r = await query("select * from goods where userId = ? order by id desc limit 10", [args.userId]);
+    return r;
+  },
   authorizeJWT: async (args, req) => {
     const auth = await jsonwebtoken.default.verify(args.jwt, privateKey, function (err, decoded) {
       return err ? false : true;
@@ -248,7 +251,7 @@ export const root = {
     return r[0];
   },
   userInfo: async (args, req) => {
-    const r = await query("select * from users where id = ?", [args.id]);
+    const r = await query("select * from users where displayName = ?", [args.displayName]);
     return r[0];
   },
   paymentMethods: async (args, req) => {

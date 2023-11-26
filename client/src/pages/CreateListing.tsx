@@ -379,12 +379,6 @@ function CreateListing() {
                     List Product
                 </button>
             </form>
-
-            {/* <dialog ref={modalRef}>
-                <div>{message}</div>
-                <button>List For Free</button>
-                <button>No</button>
-            </dialog> */}
         </>
     );
 }

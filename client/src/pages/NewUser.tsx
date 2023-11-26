@@ -7,6 +7,7 @@ import styles from "./NewUser.module.scss";
 import { DataObject } from "../types/globalTypes";
 import { gql } from "../utils/gql";
 import { useNavigate } from "react-router-dom";
+import { sendAlert } from "../components/AlertUser";
 // import AlertUser from "../components/alertUser";
 
 interface NewUserState {
@@ -106,22 +107,22 @@ function NewUser() {
     const passwordsMatch = (state.userPassword === state.retypePassword) ? true : false;
 
     if (!state.emailAddress) {
-      alert("Email Address is required.");
+      sendAlert("info", "Email Address is required!");
       return;
     }
 
     if (!passwordLength) {
-      alert("Password must be at least 8 characters.");
+      sendAlert("info", "Password must be at least 8 characters.");
       return;
     }
 
     if (!passwordsMatch) {
-      alert("Passwords do not match.");
+      sendAlert("info", "Passwords do not match.");
       return;
     }
 
     if (!state.displayName) {
-      alert("Display Name is required.");
+      sendAlert("info", "Display Name is required.");
       return;
     }
 
@@ -159,79 +160,76 @@ function NewUser() {
   }
 
   return (
-    <>
-      <div className={styles.container}>
-        <h1>Register New User</h1>
-        <form id="register-new-user" aria-label="New User">
-          <fieldset data-flex-col>
-            <legend>Basic Information</legend>
-            <label data-flex-col>
-              Email Address*
-              <input data-point="emailAddress" type="email" value={state.emailAddress} onChange={inputReducer} required />
-            </label>
-            <label data-flex-col>
-              Password*
-              <input data-point="userPassword" type="password" value={state.userPassword} onChange={inputReducer} required />
-              <span data-small>Your password can be whatever the hell you want, as long as it's at least 8 characters.</span>
-            </label>
-            <label data-flex-col>
-              Re-Type Password*
-              <input data-point="retypePassword" type="password" value={state.retypePassword} onChange={inputReducer} required />
-            </label>
-            <label data-flex-col>
-              Display Name*
-              <input data-point="displayName" type="text" value={state.displayName} onChange={inputReducer} required />
-              <span data-small>No spaces or capital letters.</span>
-            </label>
-            <label data-flex-col>
-              Default Location:
-              <input data-point="defaultLocation" type="text" value={state.defaultLocation} onChange={inputReducer} />
-              <span data-small>Used for Local Pickup items.</span>
-            </label>
-          </fieldset>
+    <div className={styles.container}>
+      <h1>Register New User</h1>
+      <form id="register-new-user" aria-label="New User">
+        <fieldset data-flex-col>
+          <legend>Basic Information</legend>
+          <label data-flex-col>
+            Email Address*
+            <input data-point="emailAddress" type="email" value={state.emailAddress} onChange={inputReducer} required />
+          </label>
+          <label data-flex-col>
+            Password*
+            <input data-point="userPassword" type="password" value={state.userPassword} onChange={inputReducer} required />
+            <span data-small>Your password can be whatever the hell you want, as long as it's at least 8 characters.</span>
+          </label>
+          <label data-flex-col>
+            Re-Type Password*
+            <input data-point="retypePassword" type="password" value={state.retypePassword} onChange={inputReducer} required />
+          </label>
+          <label data-flex-col>
+            Display Name*
+            <input data-point="displayName" type="text" value={state.displayName} onChange={inputReducer} required />
+            <span data-small>No spaces or capital letters.</span>
+          </label>
+          <label data-flex-col>
+            Default Location:
+            <input data-point="defaultLocation" type="text" value={state.defaultLocation} onChange={inputReducer} />
+            <span data-small>Used for Local Pickup items.</span>
+          </label>
+        </fieldset>
 
-          <fieldset data-flex-col>
-            <legend>Default Payment Methods</legend>
-            <span data-small data-mb4>If these fields are filled out, they will be options for you to choose from when you list items for sale. Some items you may be fine accepting Venmo, but others you may prefer cash only. It is up to you when you create your listings.</span>
+        <fieldset data-flex-col>
+          <legend>Default Payment Methods</legend>
+          <span data-small data-mb4>If these fields are filled out, they will be options for you to choose from when you list items for sale. Some items you may be fine accepting Venmo, but others you may prefer cash only. It is up to you when you create your listings.</span>
 
-            <label data-flex-col>Cash:
-              <label>Accepted <input data-point="cash" type="radio" name="cash" value="true" checked={state.cash === true} onChange={radioReducer} data-ml2 /></label>
-              <label>Not Accepted<input data-point="cash" type="radio" name="cash" value="false" checked={state.cash === false} onChange={radioReducer} data-ml2 /></label>
-            </label>
+          <label data-flex-col>Cash:
+            <label>Accepted <input data-point="cash" type="radio" name="cash" value="true" checked={state.cash === true} onChange={radioReducer} data-ml2 /></label>
+            <label>Not Accepted<input data-point="cash" type="radio" name="cash" value="false" checked={state.cash === false} onChange={radioReducer} data-ml2 /></label>
+          </label>
 
-            <label data-flex-col>Venmo
-              <input data-point="venmo" type="text" value={state.venmo} onChange={inputReducer} />
-            </label>
+          <label data-flex-col>Venmo
+            <input data-point="venmo" type="text" value={state.venmo} onChange={inputReducer} />
+          </label>
 
-            <label data-flex-col>PayPal
-              <input data-point="paypal" type="text" value={state.paypal} onChange={inputReducer} />
-            </label>
+          <label data-flex-col>PayPal
+            <input data-point="paypal" type="text" value={state.paypal} onChange={inputReducer} />
+          </label>
 
-            <label data-flex-col>CashApp
-              <input data-point="cashapp" type="text" value={state.cashapp} onChange={inputReducer} />
-            </label>
+          <label data-flex-col>CashApp
+            <input data-point="cashapp" type="text" value={state.cashapp} onChange={inputReducer} />
+          </label>
 
-            <label data-flex-col>Zelle
-              <input data-point="zelle" type="text" value={state.zelle} onChange={inputReducer} />
-            </label>
+          <label data-flex-col>Zelle
+            <input data-point="zelle" type="text" value={state.zelle} onChange={inputReducer} />
+          </label>
 
-            <label data-flex-col>ApplePay
-              <input data-point="applepay" type="text" value={state.applepay} onChange={inputReducer} />
-            </label>
+          <label data-flex-col>ApplePay
+            <input data-point="applepay" type="text" value={state.applepay} onChange={inputReducer} />
+          </label>
 
-            <label data-flex-col>GooglePay
-              <input data-point="googlepay" type="text" value={state.googlepay} onChange={inputReducer} />
-            </label>
+          <label data-flex-col>GooglePay
+            <input data-point="googlepay" type="text" value={state.googlepay} onChange={inputReducer} />
+          </label>
 
-          </fieldset>
+        </fieldset>
 
-          <div data-submit>
-            <button onClick={handleClickNewUser}>Register</button>
-          </div>
-        </form>
-      </div>
-      {/* <AlertUser ref={alertUserRef} /> */}
-    </>
+        <div data-submit>
+          <button onClick={handleClickNewUser}>Register</button>
+        </div>
+      </form>
+    </div>
   );
 }
 

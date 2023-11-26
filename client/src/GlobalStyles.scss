@@ -57,13 +57,11 @@
 
 body {
   // Tokens
-  $text-color: rgb(225, 225, 225);
+  --text-color: rgb(225, 225, 225);
   $background-color: rgb(35, 35, 35);
   $font-size: 1rem;
 
-  --text-color: $text-color;
-
-  color: $text-color;
+  color: var(--text-color);
   background: $background-color;
   font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
   line-height: 1.35;
@@ -73,7 +71,7 @@ body {
     flex-direction: column;
     min-height: 100vh;
 
-    > * {
+    > *:not(dialog) {
       width: 100%;
     }
 
@@ -90,6 +88,7 @@ body {
 
   img {
     display: block;
+    width: 100%;
   }
 
   a,

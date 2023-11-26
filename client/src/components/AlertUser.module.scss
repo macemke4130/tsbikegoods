@@ -1,0 +1,19 @@
+.container {
+  max-width: 80vw;
+  border-radius: 0.5rem;
+  background-color: var(--dark-90);
+  border: none;
+  color: var(--text-color);
+
+  [data-wrapper] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  &::backdrop {
+    background: var(--light-35);
+  }
+}

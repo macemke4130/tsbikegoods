@@ -11,6 +11,8 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import CreateListing from './pages/CreateListing';
 import NewUser from './pages/NewUser';
+import AlertUser from './components/AlertUser';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -21,10 +23,12 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/create-listing" element={<CreateListing />} />
           <Route path="/register" element={<NewUser />} />
+          <Route path="/users/:displayName" element={<Profile />} />
         </Routes>
       </main>
       <div id="footer-spacer" aria-hidden="true" />
       <Footer />
+      <AlertUser />
     </>
   );
 }

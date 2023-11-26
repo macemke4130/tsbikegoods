@@ -144,7 +144,7 @@ function Login() {
           <button data-window-button aria-label="Close Popup" onClick={closeWindow}>
             X
           </button>
-          <Link to="/profile">My Profile</Link>
+          <Link to={`/users/${displayName}`}>My Profile</Link>
           <Link to="/listings">My Listings</Link>
           <Link to="/messages">Messages</Link>
           <button onClick={logoutUser}>Logout</button>
