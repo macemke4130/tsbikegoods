@@ -3,13 +3,5 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
-
-    [data-product-card] {
-      text-decoration: none;
-      border: 1px solid var(--light-25);
-      border-radius: 0.5rem;
-      padding: 0.5rem;
-      background: var(--light-50);
-    }
   }
 }
