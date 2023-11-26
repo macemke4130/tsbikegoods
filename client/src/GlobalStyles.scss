@@ -1,0 +1,159 @@
+:root {
+  @for $i from 0 through 20 {
+    --dark-#{$i * 5}: rgba(0, 0, 0, #{$i * 0.05});
+    --light-#{$i * 5}: rgba(255, 255, 255, #{$i * 0.05});
+  }
+}
+
+*:not(dialog),
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+@for $i from 0 through 4 {
+  [data-p#{ $i }] {
+    padding: #{$i * 0.25}rem;
+  }
+
+  [data-pt#{ $i }] {
+    padding-top: #{$i * 0.25}rem;
+  }
+
+  [data-pb#{ $i }] {
+    padding-bottom: #{$i * 0.25}rem;
+  }
+
+  [data-pr#{ $i }] {
+    padding-right: #{$i * 0.25}rem;
+  }
+
+  [data-pl#{ $i }] {
+    padding-left: #{$i * 0.25}rem;
+  }
+
+  [data-m#{ $i }] {
+    margin: #{$i * 0.25}rem;
+  }
+
+  [data-mt#{ $i }] {
+    margin-top: #{$i * 0.25}rem;
+  }
+
+  [data-mb#{ $i }] {
+    margin-bottom: #{$i * 0.25}rem;
+  }
+
+  [data-mr#{ $i }] {
+    margin-right: #{$i * 0.25}rem;
+  }
+
+  [data-ml#{ $i }] {
+    margin-left: #{$i * 0.25}rem;
+  }
+}
+
+body {
+  // Tokens
+  $text-color: rgb(225, 225, 225);
+  $background-color: rgb(35, 35, 35);
+  $font-size: 1rem;
+
+  --text-color: $text-color;
+
+  color: $text-color;
+  background: $background-color;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+  line-height: 1.35;
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+
+    > * {
+      width: 100%;
+    }
+
+    #main-content {
+      max-width: 96rem;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    #footer-spacer {
+      flex-grow: 1;
+    }
+  }
+
+  img {
+    display: block;
+  }
+
+  a,
+  button {
+    font-family: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  select {
+    text-align: center;
+    padding: 0 0.5rem;
+    height: $font-size * 2;
+  }
+
+  input {
+    padding: 0.25rem;
+  }
+
+  button {
+    display: block;
+    background-color: black;
+    border-radius: 0.25rem;
+    border: 1px solid var(--light-25);
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+  }
+
+  button:hover {
+    border: 1px solid var(--light-75);
+  }
+
+  legend {
+    padding: 0 0.5rem;
+  }
+}
+
+[data-small] {
+  font-size: 90%;
+}
+
+[data-flex] {
+  display: flex;
+}
+
+[data-flex-col] {
+  display: flex;
+  flex-direction: column;
+}
+
+[data-col] {
+  flex-direction: column;
+}
+
+[data-jc] {
+  justify-content: center;
+}
+
+[data-ac] {
+  align-items: center;
+}
+
+[data-sp0] {
+  margin: 0;
+  padding: 0;
+}

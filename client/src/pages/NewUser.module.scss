@@ -1,0 +1,31 @@
+.container {
+  form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    place-items: center;
+    gap: 1rem;
+
+    > * {
+      width: 100%;
+    }
+
+    fieldset {
+      height: 100%;
+      padding: 1rem;
+    }
+
+    label {
+      margin-bottom: 1rem;
+      max-width: 40ch;
+    }
+
+    [data-submit] {
+      grid-column: span 2;
+      margin-top: 1rem;
+
+      button {
+        margin: 0 auto;
+      }
+    }
+  }
+}
