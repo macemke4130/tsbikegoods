@@ -1,23 +1,33 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 
+// Utils
 import { gql } from "../utils/gql";
 import { waitForDOM } from "../utils/tools";
 
+// Styles
 import styles from "./Login.module.scss";
 
+// Types
 import { LoginObject } from "../types/globalTypes";
 
+// Global Context
+import { StoreContext } from "../globalContext/StoreContext";
+import { AuthObject } from "../globalContext/globalReducer";
+
 function Login() {
-  const [loginWindowActive, setLoginWindowActive] = useState(false);
-  const [logoutWindowActive, setLogoutWindowActive] = useState(false);
-  const [displayName, setDisplayName] = useState("");
-  const [emailAddress, setEmailAddress] = useState("");
-  const [userPassword, setUserPassword] = useState("");
+  // Context
+  const { authData, setGlobalAuth, alertUser } = useContext(StoreContext);
 
   // Ref
   const openGate = useRef(true);
   const emailInput = useRef<HTMLInputElement>(null);
+
+  // State
+  const [loginWindowActive, setLoginWindowActive] = useState(false);
+  const [logoutWindowActive, setLogoutWindowActive] = useState(false);
+  const [emailAddress, setEmailAddress] = useState("");
+  const [userPassword, setUserPassword] = useState("");
 
   useEffect(() => {
     if (!openGate.current) return;
@@ -31,30 +41,43 @@ function Login() {
     return () => window.removeEventListener("keydown", handleEnterKey);
   });
 
+  const pageLoadLogin = async () => {
+    const jwt = localStorage.getItem("jwt");
+    const emailAddress = localStorage.getItem("emailAddress");
+    if (!jwt || !emailAddress) return;
+
+    try {
+      const { authorizeJWT } = await gql(`{ authorizeJWT( jwt: "${jwt}", emailAddress: "${emailAddress}"){ id, displayName } }`);
+
+      if (authorizeJWT) {
+        const authenticatedUser: AuthObject = {
+          jwt,
+          emailAddress,
+          id: authorizeJWT.id,
+          displayName: authorizeJWT.displayName
+        }
+
+        setGlobalAuth(authenticatedUser);
+      } else {
+        clearLocalStorage();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleEnterKey = (e: KeyboardEvent) => {
     if (e.key === "Enter" && loginWindowActive) {
       e.preventDefault();
-      validateLogin(e);
+      validateLoginFields(e);
     }
   };
 
-  const toggleLoginWindow = () => {
-    if (displayName) {
-      setLogoutWindowActive(true);
-    } else {
-      setLoginWindowActive(!loginWindowActive);
-      waitForDOM(() => {
-        if (!loginWindowActive && emailInput.current) emailInput.current.focus();
-      });
-    }
-  };
-
-  // IDK what I was thinking. Double check if "onload" is even needed.
-  const validateLogin = (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | KeyboardEvent | "onload") => {
+  const validateLoginFields = (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | KeyboardEvent) => {
     if (typeof e === "object") e.preventDefault();
 
     if (!emailAddress || !userPassword) {
-      alertUser("danger", "Both Fields are Required");
+      alertUser("info", "Both Fields are Required");
     } else {
       attemptLogin();
     }
@@ -63,16 +86,24 @@ function Login() {
   const attemptLogin = async () => {
     try {
       const { userLogin } = await gql(`{userLogin (emailAddress: "${emailAddress}", userPassword: "${userPassword}")
-      {success, emailAddress, displayName, jwt, message}}`);
+      {success, emailAddress, displayName, jwt, message, id}}`);
 
       if (!userLogin) {
-        alertUser("danger", "Email or Password not recognized.");
+        alertUser("info", "Email or Password not recognized.");
         return;
       }
 
       if (userLogin.success) {
+        const authenticatedUser: AuthObject = {
+          id: userLogin.id,
+          jwt: userLogin.jwt,
+          emailAddress: userLogin.emailAddress,
+          displayName: userLogin.displayName
+        }
+
+        setGlobalAuth(authenticatedUser);
+
         writeLocalStorage(userLogin);
-        setDisplayName(userLogin.displayName);
         setLoginWindowActive(false);
       } else {
         alertUser("danger", userLogin.message);
@@ -82,49 +113,41 @@ function Login() {
     }
   };
 
-  const pageLoadLogin = async () => {
-    const jwt = localStorage.getItem("jwt");
-    if (!jwt) return;
-
-    const { authorizeJWT } = await gql(`{ authorizeJWT( jwt: "${jwt}") }`);
-
-    if (authorizeJWT) {
-      setDisplayName(localStorage.getItem("displayName")!);
-      setLoginWindowActive(false);
+  const toggleLoginWindow = () => {
+    if (authData.displayName) {
+      setLogoutWindowActive(true);
+    } else {
+      setLoginWindowActive(!loginWindowActive);
+      waitForDOM(() => {
+        if (!loginWindowActive && emailInput.current) emailInput.current.focus();
+      });
     }
-
   };
 
   const writeLocalStorage = (userLogin: LoginObject) => {
     localStorage.setItem("jwt", userLogin.jwt);
     localStorage.setItem("emailAddress", userLogin.emailAddress);
-    localStorage.setItem("displayName", userLogin.displayName);
   };
 
-  const clearStorage = () => {
+  const clearLocalStorage = () => {
     localStorage.removeItem("jwt");
     localStorage.removeItem("emailAddress");
-    localStorage.removeItem("displayName");
-  };
-
-  const alertUser = (alertType: "danger" | "info", message: string) => {
-    alert(message);
-  };
-
-  const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.id === "emailAddress") {
-      setEmailAddress(e.target.value);
-    }
-    if (e.target.id === "userPassword") {
-      setUserPassword(e.target.value);
-    }
   };
 
   const logoutUser = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
-    setDisplayName("");
+
+    const loggedOutUser: AuthObject = {
+      id: 0,
+      jwt: "",
+      emailAddress: "",
+      displayName: ""
+    }
+
+    setGlobalAuth(loggedOutUser);
+
     setLogoutWindowActive(false);
-    clearStorage();
+    clearLocalStorage();
   };
 
   const closeWindow = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -134,19 +157,28 @@ function Login() {
     setLogoutWindowActive(false);
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.id === "emailAddress") {
+      setEmailAddress(e.target.value);
+    }
+    if (e.target.id === "userPassword") {
+      setUserPassword(e.target.value);
+    }
+  };
+
   return (
     <section aria-label="Log In" className={styles.container}>
       <button onClick={toggleLoginWindow} aria-label="Account Info Popup">
-        {displayName ? displayName : "Login"}
+        {authData.displayName ? authData.displayName : "Login"}
       </button>
       {logoutWindowActive && (
         <div data-logout-window>
           <button data-window-button aria-label="Close Popup" onClick={closeWindow}>
             X
           </button>
-          <Link to={`/users/${displayName}`}>My Profile</Link>
-          <Link to="/listings">My Listings</Link>
-          <Link to="/messages">Messages</Link>
+          <Link to={`/user/${authData.displayName}`} onClick={() => toggleLoginWindow()}>My Profile</Link>
+          <Link to="/listings" onClick={() => toggleLoginWindow()}>My Listings</Link>
+          <Link to="/messages" onClick={() => toggleLoginWindow()}>Messages</Link>
           <button onClick={logoutUser}>Logout</button>
         </div>
       )}
@@ -158,13 +190,13 @@ function Login() {
           <div data-login-title>Log In</div>
           <label>
             Email:
-            <input ref={emailInput} id="emailAddress" type="email" value={emailAddress} onChange={handleLoginChange} />
+            <input ref={emailInput} id="emailAddress" type="email" value={emailAddress} onChange={handleInputChange} />
           </label>
           <label>
             Password:
-            <input id="userPassword" type="password" value={userPassword} onChange={handleLoginChange} />
+            <input id="userPassword" type="password" value={userPassword} onChange={handleInputChange} />
           </label>
-          <button onClick={validateLogin}>Submit</button>
+          <button onClick={validateLoginFields}>Submit</button>
           <div data-small>Don't have an account?</div>
           <Link to="/register" onClick={() => toggleLoginWindow()}>Sign Up Here!</Link>
         </form>

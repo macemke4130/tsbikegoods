@@ -1,9 +1,12 @@
 import React, { useReducer, useRef, useEffect, useState } from "react";
-// import { useHistory } from "react-router-dom";
-import { gql } from "../utils/gql";
+import { useNavigate } from "react-router-dom";
 
 import styles from "./CreateListing.module.scss";
 
+// Utils
+import { gql } from "../utils/gql";
+
+// Types
 import { StateObject, ValidDataPoint, ConfigObject, DataObject, ServerOptionsObject, SubcategoryObject, SubCategoryArray, BrandObject, CategoryObject, ItemConditionObject, DeliveryObject } from "./CreateListingTypes";
 
 const config: ConfigObject = {
@@ -88,6 +91,8 @@ const reducer = (state: StateObject, payload: DataObject): typeof reducerInitial
 };
 
 function CreateListing() {
+    const navigate = useNavigate();
+
     // Ref
     const openGate = useRef(true);
 
@@ -101,8 +106,6 @@ function CreateListing() {
 
     // Reducer
     const [state, dispatch] = useReducer(reducer, reducerInitialState);
-
-    //   const history = useHistory();
 
     useEffect(() => {
         if (!openGate.current) return;
@@ -172,8 +175,7 @@ function CreateListing() {
             const { newGood } = await gql(mutation);
 
             if (newGood.insertId) {
-                console.info(newGood.insertId);
-                // history.push(`/product-${newGood.insertId}?success=true`);
+                navigate(`/product/${newGood.insertId}`)
             }
         } catch (e) {
             console.error(e);

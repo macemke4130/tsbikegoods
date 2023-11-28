@@ -36,11 +36,16 @@ export interface ProductObject {
   quantity: number;
   price: number;
   itemCondition: number;
+  itemConditionName: string;
   title: string;
+  descriptionText: string;
+  descriptionParagraphs: Array<string>;
   brand: number;
   descriptionId: number;
-  photosId: number;
+  photosId: number | null;
   categoryId: number;
+  category: string;
   subcategoryId: number;
+  subcategory: string;
   deliveryId: number;
 }

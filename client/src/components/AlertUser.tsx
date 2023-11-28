@@ -1,53 +1,38 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef } from "react";
+import { StoreContext } from "../globalContext/StoreContext";
 
 import styles from "./AlertUser.module.scss";
 
-export const sendAlert = (messageType: "danger" | "info" = "info", message: string) => {
-    const messageObject = {
-        messageOrigin: "sendAlert",
-        messageType,
-        message
-    }
-    window.postMessage(messageObject, "*");
-}
-
 function AlertUser() {
+    // Context
+    const { alertData, alertUser } = useContext(StoreContext);
+
+    // Ref
     const modalRef = useRef<HTMLDialogElement>(null);
-    const [messageType, setMessageType] = useState<"danger" | "info">("info");
-    const [message, setMessage] = useState<string>("");
 
     useEffect(() => {
-        window.addEventListener("message", handleMessage);
-        return () => window.removeEventListener("message", handleMessage);
-    });
-
-    const handleMessage = (e: MessageEvent) => {
-        if (e.data.messageOrigin !== "sendAlert") return;
-
-        const messageType: "danger" | "info" = e.data.messageType;
-        const message: string = e.data.message;
-
-        setMessageType(messageType);
-        setMessage(message);
-        modalRef.current?.showModal();
-    }
+        if (alertData.alertType !== "off") modalRef.current?.showModal();
+    })
 
     const closeModal = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
-        setMessage("");
+
+        alertUser("off", ""); // Clear Alert.
         modalRef.current!.close();
     }
 
-    return (
-        <dialog tabIndex={-1} ref={modalRef} aria-labelledby="dialog-message" data-message-type={messageType} className={styles.container} >
-            <div data-wrapper>
-                <div id="dialog-message">
-                    {message}
+    if (alertData.alertType === "off") { return <></> } else {
+        return (
+            <dialog tabIndex={-1} ref={modalRef} aria-labelledby="dialog-message" className={styles.container} >
+                <div data-wrapper>
+                    <div id="dialog-message">
+                        {alertData.message}
+                    </div>
+                    <button onClick={closeModal}>Close</button>
                 </div>
-                <button onClick={closeModal}>Close</button>
-            </div>
-        </dialog>
-    );
+            </dialog>
+        );
+    }
 }
 
 export default AlertUser;

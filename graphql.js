@@ -14,7 +14,7 @@ export const schema = buildSchema(`
     userLogin (emailAddress: String!, userPassword: String!): AuthObject
     userInfo (displayName: String!): User
     userProducts (userId: Int!): [Product]
-    authorizeJWT (jwt: String!): Boolean
+    authorizeJWT (jwt: String!, emailAddress: String!): AuthObject
     productDetails (id: Int!): Product
     paymentMethods (userId: Int!): PaymentMethod
     goodTypes: [GoodType]
@@ -51,6 +51,7 @@ export const schema = buildSchema(`
     jwt: String
     message: String
     displayName: String
+    id: Int
   }
 
   type mysqlResponse {
@@ -170,7 +171,7 @@ export const root = {
     const userObject = {
       user: args.emailAddress,
       admin: r[0].admin,
-      userId: r[0].id,
+      id: r[0].id,
     };
 
     const token = passwordMatch ? await jsonwebtoken.default.sign({ data: userObject }, privateKey, { expiresIn: "365d" }) : null;
@@ -181,6 +182,7 @@ export const root = {
       displayName: passwordMatch ? r[0].displayName : "null",
       jwt: passwordMatch ? token : "null",
       message: passwordMatch ? "200" : "Email or Password not recognized.",
+      id: passwordMatch ? userObject.id : null,
     };
 
     return loginObject;
@@ -193,7 +195,30 @@ export const root = {
     const auth = await jsonwebtoken.default.verify(args.jwt, privateKey, function (err, decoded) {
       return err ? false : true;
     });
-    return auth;
+
+    if (auth) {
+      const r = await query("select * from users where emailAddress = ?", [args.emailAddress]);
+
+      const authObject = {
+        success: auth,
+        emailAddress: args.emailAddress,
+        jwt: args.jwt,
+        message: "200",
+        displayName: r[0].displayName,
+        id: r[0].id,
+      };
+
+      return authObject;
+    }
+
+    return {
+      success: false,
+      emailAddress: null,
+      jwt: null,
+      message: "Not Recognized",
+      displayName: null,
+      id: 0,
+    };
   },
   newUser: async (args, req) => {
     const hashedPassword = bcrypt.hashSync(args.userPassword, saltRounds);

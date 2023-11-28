@@ -10,7 +10,7 @@ function ProductCard({ props }: { props: ProductObject }) {
         <Link id={`productId-${props.id}`} data-product-card to={`/product/${props.id}`} className={styles.container}>
             <img src="../not-found.png" alt="Missing" data-product-image />
             <h3 data-product-title>{props.title}</h3>
-            <div data-product-price>{props.price === 0 ? "Free" : `$${props.price}`}</div>
+            <div data-product-price>{props.price === 0 ? "Free" : `$${props.price / 100}`}</div>
         </Link>
     )
 }

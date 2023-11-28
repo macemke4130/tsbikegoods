@@ -2,8 +2,10 @@
 
 ## Auth
 
+- Update Auth variables from local storage to globalReducer state
 - Register page probably has some legaleze
 - Login user upon registration
+- Private route component
 
 ## Profile Page
 

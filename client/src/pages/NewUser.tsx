@@ -1,14 +1,14 @@
-import React, { useRef, useEffect, useReducer } from "react";
-// import { gql } from "../utils/gql";
+import React, { useRef, useEffect, useReducer, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 import styles from "./NewUser.module.scss";
 
 // Types
 import { DataObject } from "../types/globalTypes";
+
+// Utils
 import { gql } from "../utils/gql";
-import { useNavigate } from "react-router-dom";
-import { sendAlert } from "../components/AlertUser";
-// import AlertUser from "../components/alertUser";
+import { StoreContext } from "../globalContext/StoreContext";
 
 interface NewUserState {
   emailAddress: string
@@ -70,6 +70,8 @@ const reducer = (state: NewUserState, payload: DataObject): typeof reducerInitia
 function NewUser() {
   const navigate = useNavigate();
 
+  const { alertUser } = useContext(StoreContext);
+
   // Ref
   const openGate = useRef(true);
   // const alertUserRef = useRef<JSX.Element>(null);
@@ -107,22 +109,22 @@ function NewUser() {
     const passwordsMatch = (state.userPassword === state.retypePassword) ? true : false;
 
     if (!state.emailAddress) {
-      sendAlert("info", "Email Address is required!");
+      alertUser("info", "Email Address is required!");
       return;
     }
 
     if (!passwordLength) {
-      sendAlert("info", "Password must be at least 8 characters.");
+      alertUser("info", "Password must be at least 8 characters.");
       return;
     }
 
     if (!passwordsMatch) {
-      sendAlert("info", "Passwords do not match.");
+      alertUser("info", "Passwords must match.");
       return;
     }
 
     if (!state.displayName) {
-      sendAlert("info", "Display Name is required.");
+      alertUser("info", "Display Name is required.");
       return;
     }
 

@@ -85,7 +85,7 @@ function Profile() {
     <div className={styles.container}>
       <h1>{state.displayName}'s Profile</h1>
       {state.products &&
-        <section aria-labelledby="recent-products-title">
+        <section aria-labelledby="recent-products-title" data-mt4>
           <h2 id="recent-products-title">{state.displayName}'s Recent Products</h2>
           <div data-product-grid>
             {state.products?.map((item) => (
@@ -94,10 +94,7 @@ function Profile() {
               </Fragment>
             ))}
           </div>
-        </section>
-
-      }
-
+        </section>}
     </div >
   );
 }
