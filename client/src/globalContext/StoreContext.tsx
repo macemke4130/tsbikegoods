@@ -3,9 +3,7 @@ import { storeReducer, globalReducerInitialState, GlobalState, AuthObject } from
 
 export const StoreContext = createContext(globalReducerInitialState);
 
-type StoreProviderProps = {
-  children: string | JSX.Element | JSX.Element[]
-}
+type StoreProviderProps = { children: string | JSX.Element | JSX.Element[] }
 
 export const StoreProvider = ({ children }: StoreProviderProps) => {
   const [state, dispatch] = useReducer(storeReducer, globalReducerInitialState);
@@ -21,7 +19,6 @@ export const StoreProvider = ({ children }: StoreProviderProps) => {
   };
 
   const setGlobalAuth = (authInfo: AuthObject) => {
-    console.info({ authInfo });
     dispatch({
       payloadType: "auth",
       authData: {

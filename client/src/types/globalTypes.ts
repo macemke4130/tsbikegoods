@@ -48,4 +48,5 @@ export interface ProductObject {
   subcategoryId: number;
   subcategory: string;
   deliveryId: number;
+  deliveryType: string;
 }

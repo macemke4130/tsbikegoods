@@ -1,6 +1,8 @@
 .container {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  width: 10rem;
 
   button {
     color: var(--text-color);

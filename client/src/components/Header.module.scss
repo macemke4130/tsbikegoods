@@ -6,12 +6,14 @@
     display: flex;
     justify-content: space-between;
     height: 5rem;
-    max-width: 96rem;
+    max-width: var(--max-width);
     margin: 0 auto;
+    padding: 0 1rem;
 
     [data-logo] {
-      height: 4.5rem;
-      width: auto;
+      width: 10rem;
+      height: auto;
+      max-height: 4.5rem;
       object-fit: contain;
       margin: auto 0;
     }

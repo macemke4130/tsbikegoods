@@ -23,10 +23,25 @@
       }
 
       [data-info-box] {
+        font-size: 1.15rem;
         width: 100%;
         margin-top: 1rem;
         padding: 0.5rem;
         border: 1px solid var(--light-20);
+
+        > * {
+          margin-bottom: 0.5rem;
+        }
+      }
+
+      [data-contact-seller-button] {
+        margin-top: 1rem;
+        background-color: green;
+
+        &[data-sold="true"] {
+          color: black;
+          background-color: var(--light-85);
+        }
       }
     }
   }

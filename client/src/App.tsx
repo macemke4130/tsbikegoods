@@ -3,18 +3,20 @@ import { Routes, Route } from 'react-router-dom';
 
 import "./GlobalStyles.scss";
 
+// Global Context
+import { StoreProvider } from './globalContext/StoreContext';
+
 // Components
 import Header from './components/Header';
 import Footer from './components/Footer';
+import AlertUser from './components/AlertUser';
 
 // Pages
 import Home from './pages/Home';
 import CreateListing from './pages/CreateListing';
 import NewUser from './pages/NewUser';
-import AlertUser from './components/AlertUser';
 import Profile from './pages/Profile';
 import ProductDetails from './pages/ProductDetails';
-import { StoreProvider } from './globalContext/StoreContext';
 
 function App() {
 

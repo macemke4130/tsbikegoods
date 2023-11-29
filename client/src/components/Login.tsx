@@ -15,6 +15,8 @@ import { LoginObject } from "../types/globalTypes";
 import { StoreContext } from "../globalContext/StoreContext";
 import { AuthObject } from "../globalContext/globalReducer";
 
+const observerConfig = { attributes: true, childList: false, subtree: false };
+
 function Login() {
   // Context
   const { authData, setGlobalAuth, alertUser } = useContext(StoreContext);
@@ -22,6 +24,8 @@ function Login() {
   // Ref
   const openGate = useRef(true);
   const emailInput = useRef<HTMLInputElement>(null);
+  const passwordInput = useRef<HTMLInputElement>(null);
+  const observer = useRef<MutationObserver>();
 
   // State
   const [loginWindowActive, setLoginWindowActive] = useState(false);
@@ -29,6 +33,7 @@ function Login() {
   const [emailAddress, setEmailAddress] = useState("");
   const [userPassword, setUserPassword] = useState("");
 
+  // CDM
   useEffect(() => {
     if (!openGate.current) return;
     openGate.current = false;
@@ -36,10 +41,35 @@ function Login() {
     pageLoadLogin();
   });
 
+  // Enter key listener.
   useEffect(() => {
     window.addEventListener("keydown", handleEnterKey);
     return () => window.removeEventListener("keydown", handleEnterKey);
   });
+
+  // passwordInputWatch mutation observer.
+  useEffect(() => {
+    if (!passwordInput.current) return;
+    observer.current = new MutationObserver(passwordInputWatch);
+    observer.current.observe(passwordInput.current, observerConfig);
+    return () => observer.current!.disconnect();
+  });
+
+  // Prevents a malicious user from changing input type from "password"
+  // to "text" to be human readable in the event of a browser autofill.
+  const passwordInputWatch: MutationCallback = (mutationList) => {
+    const mutation = mutationList[0];
+    if (mutation.type === "attributes") {
+      // Disconnect prevents an infinite loop.
+      observer.current?.disconnect();
+
+      passwordInput.current!.type = "password";
+      alertUser("info", "Don't do that.");
+
+      // Reassign observer after mutation.
+      observer.current?.observe(passwordInput.current!, observerConfig);
+    }
+  }
 
   const pageLoadLogin = async () => {
     const jwt = localStorage.getItem("jwt");
@@ -176,9 +206,9 @@ function Login() {
           <button data-window-button aria-label="Close Popup" onClick={closeWindow}>
             X
           </button>
-          <Link to={`/user/${authData.displayName}`} onClick={() => toggleLoginWindow()}>My Profile</Link>
-          <Link to="/listings" onClick={() => toggleLoginWindow()}>My Listings</Link>
-          <Link to="/messages" onClick={() => toggleLoginWindow()}>Messages</Link>
+          <Link to={`/user/${authData.displayName}`} onClick={() => setLogoutWindowActive(false)}>My Profile</Link>
+          <Link to="/listings" onClick={() => setLogoutWindowActive(false)}>My Listings</Link>
+          <Link to="/messages" onClick={() => setLogoutWindowActive(false)}>Messages</Link>
           <button onClick={logoutUser}>Logout</button>
         </div>
       )}
@@ -194,7 +224,7 @@ function Login() {
           </label>
           <label>
             Password:
-            <input id="userPassword" type="password" value={userPassword} onChange={handleInputChange} />
+            <input ref={passwordInput} id="userPassword" type="password" value={userPassword} onChange={handleInputChange} />
           </label>
           <button onClick={validateLoginFields}>Submit</button>
           <div data-small>Don't have an account?</div>

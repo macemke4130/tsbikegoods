@@ -5,9 +5,13 @@ import styles from "./CreateListing.module.scss";
 
 // Utils
 import { gql } from "../utils/gql";
+import { specQuery } from "../components/specificationsData";
 
 // Types
 import { StateObject, ValidDataPoint, ConfigObject, DataObject, ServerOptionsObject, SubcategoryObject, SubCategoryArray, BrandObject, CategoryObject, ItemConditionObject, DeliveryObject } from "./CreateListingTypes";
+
+// Components
+import Specifications from "../components/Specifications";
 
 const config: ConfigObject = {
     requiredState: ["brandInput", "categoryId", "title", "quantity", "itemCondition", "deliveryId"],
@@ -100,6 +104,7 @@ function CreateListing() {
     const [loading, setLoading] = useState(true);
     const [serverOptions, setServerOptions] = useState<ServerOptionsObject>();
     const [subcategories, setSubcategories] = useState<Array<SubcategoryObject>>([]);
+    const [specificationsState, setSpecificationsState] = useState<any>();
     const [validInputs, setValidInputs] = useState<Array<ValidDataPoint>>(config.requiredState.map((item) => {
         return { dataPoint: item, valid: true }
     }));
@@ -171,16 +176,28 @@ function CreateListing() {
             quantity: ${Number(state.quantity)}, 
             deliveryId: ${Number(state.deliveryId)} )
           { insertId } }`;
-            console.info(mutation);
+
             const { newGood } = await gql(mutation);
 
             if (newGood.insertId) {
-                navigate(`/product/${newGood.insertId}`)
+                if (specificationsState) sendSpecificationsToDB(newGood.insertId);
+                // navigate(`/product/${newGood.insertId}`)
             }
         } catch (e) {
             console.error(e);
         }
     };
+
+    const sendSpecificationsToDB = async (insertId: number) => {
+        const mutation = specQuery(state.subcategoryId, specificationsState, insertId);
+        console.info(mutation);
+        try {
+            const r = await gql(mutation);
+            console.info(r);
+        } catch (e) {
+            console.error(e);
+        }
+    }
 
     const checkBrand = async () => {
         if (state.brandSelect) return state.brandSelect;
@@ -275,108 +292,117 @@ function CreateListing() {
         if (dataPoint === "categoryId") fetchSubcategory(Number(dataValue));
     };
 
+    // Pull state from <Specifications />.
+    const specificationsSignal = (specificationState: any) => {
+        setSpecificationsState(specificationState);
+    }
+
     if (loading === true) return <>Loading</>;
 
     return (
         <>
             <form className={styles.container}>
-                <fieldset data-brand-box>
-                    <legend>Brand</legend>
+                <div data-product-info>
+                    <fieldset data-brand-box>
+                        <legend>Brand</legend>
+                        <label>
+                            <span data-brand-instructions>Select a Brand from list or type in the field</span>
+                            <span data-brand-inputs>
+                                <select data-point="brandSelect" value={state.brandSelect} onChange={handleSelectReducer}>
+                                    <option value="0">Brands...</option>
+                                    {serverOptions?.brands?.map((brand: BrandObject) => (
+                                        <option key={brand.brandName} data-brand-select={brand.brandName} value={brand.id}>
+                                            {brand.brandName}
+                                        </option>
+                                    ))}
+                                </select>
+                                <input placeholder="Brand Name" data-point="brandInput" list="brand-list" data-valid-alert={validInputs.find(item => item.dataPoint === "brandInput")?.valid} value={state.brandInput} onChange={handleInputReducer} />
+                                <datalist id="brand-list">
+                                    {serverOptions?.brands?.map((brandOption: BrandObject) => (
+                                        <option key={brandOption.brandName} data-brand-id={brandOption.id} value={brandOption.brandName}></option>
+                                    ))}
+                                </datalist>
+                            </span>
+                        </label>
+                    </fieldset>
+
                     <label>
-                        <span data-brand-instructions>Select a Brand from list or type in the field</span>
-                        <span data-brand-inputs>
-                            <select data-point="brandSelect" value={state.brandSelect} onChange={handleSelectReducer}>
-                                <option value="0">Brands...</option>
-                                {serverOptions?.brands?.map((brand: BrandObject) => (
-                                    <option key={brand.brandName} data-brand-select={brand.brandName} value={brand.id}>
-                                        {brand.brandName}
-                                    </option>
-                                ))}
-                            </select>
-                            <input placeholder="Brand Name" data-point="brandInput" list="brand-list" data-valid-alert={validInputs.find(item => item.dataPoint === "brandInput")?.valid} value={state.brandInput} onChange={handleInputReducer} />
-                            <datalist id="brand-list">
-                                {serverOptions?.brands?.map((brandOption: BrandObject) => (
-                                    <option key={brandOption.brandName} data-brand-id={brandOption.id} value={brandOption.brandName}></option>
-                                ))}
-                            </datalist>
-                        </span>
+                        Product Category:
+                        <select data-point="categoryId" data-valid-alert={validInputs.find(item => item.dataPoint === "categoryId")?.valid} value={state.categoryId} onChange={handleSelectReducer}>
+                            <option value="0">Please Select...</option>
+                            {serverOptions?.categories?.map((category: CategoryObject) => (
+                                <option key={category.category} value={category.id}>
+                                    {category.category}
+                                </option>
+                            ))}
+                        </select>
                     </label>
-                </fieldset>
 
-                <label>
-                    Product Category:
-                    <select data-point="categoryId" data-valid-alert={validInputs.find(item => item.dataPoint === "categoryId")?.valid} value={state.categoryId} onChange={handleSelectReducer}>
-                        <option value="0">Please Select...</option>
-                        {serverOptions?.categories?.map((category: CategoryObject) => (
-                            <option key={category.category} value={category.id}>
-                                {category.category}
-                            </option>
-                        ))}
-                    </select>
-                </label>
+                    <label data-visually-hidden={subcategories.length ? false : true}>
+                        Sub-Category:
+                        <select data-point="subcategoryId" value={state.subcategoryId} onChange={handleSelectReducer}>
+                            <option value="0">Please Select...</option>
+                            {subcategories?.map((subcategory) => (
+                                <option key={subcategory.subcategory} value={subcategory.id}>
+                                    {subcategory.subcategory}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
 
-                <label data-visually-hidden={subcategories.length ? false : true}>
-                    Sub-Category:
-                    <select data-point="subcategoryId" value={state.subcategoryId} onChange={handleSelectReducer}>
-                        <option value="0">Please Select...</option>
-                        {subcategories?.map((subcategory) => (
-                            <option key={subcategory.subcategory} value={subcategory.id}>
-                                {subcategory.subcategory}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-
-                <label>
-                    Item Condition:
-                    <select data-point="itemCondition" data-valid-alert={validInputs.find(item => item.dataPoint === "itemCondition")?.valid} value={state.itemCondition} onChange={handleSelectReducer}>
-                        <option value="0">Please Select...</option>
-                        {serverOptions?.itemConditions?.map((condition: ItemConditionObject) => (
-                            <option key={condition.itemConditionName} value={condition.id}>
-                                {condition.itemConditionName}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-
-                <label>
-                    Delivery Method:
-                    <select data-point="deliveryId" data-valid-alert={validInputs.find(item => item.dataPoint === "deliveryId")?.valid} value={state.deliveryId} onChange={handleSelectReducer}>
-                        <option value="0">Please Select...</option>
-                        {serverOptions?.deliveryTypes?.map((type: DeliveryObject) => (
-                            <option key={type.deliveryType} value={type.id}>
-                                {type.deliveryType}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-
-                <label>
-                    Product Title:
-                    <input type="text" data-point="title" data-valid-alert={validInputs.find(item => item.dataPoint === "title")?.valid} value={state.title} onChange={handleInputReducer}></input>
-                    <button onClick={handleClearTitle} aria-label="Erase Title Text">
-                        X
-                    </button>
-                </label>
-
-                <label>
-                    Price in USD:
-                    <input type="number" step="1" inputMode="numeric" data-point="price" value={state.price} onChange={handleInputReducer} />
-                </label>
-
-                <label>
-                    Quantity:
-                    <input type="number" step="1" inputMode="numeric" data-point="quantity" data-valid-alert={validInputs.find(item => item.dataPoint === "quantity")?.valid} value={state.quantity} onChange={handleInputReducer}></input>
-                </label>
-
-                <div>
                     <label>
-                        Product Description
-                        <textarea data-point="descriptionText" value={state.descriptionText} onChange={handleTextAreaReducer} />
+                        Item Condition:
+                        <select data-point="itemCondition" data-valid-alert={validInputs.find(item => item.dataPoint === "itemCondition")?.valid} value={state.itemCondition} onChange={handleSelectReducer}>
+                            <option value="0">Please Select...</option>
+                            {serverOptions?.itemConditions?.map((condition: ItemConditionObject) => (
+                                <option key={condition.itemConditionName} value={condition.id}>
+                                    {condition.itemConditionName}
+                                </option>
+                            ))}
+                        </select>
                     </label>
-                    <span>Characters Remaining: {state.descriptionCharacterCount} / 2000</span>
+
+                    <label>
+                        Delivery Method:
+                        <select data-point="deliveryId" data-valid-alert={validInputs.find(item => item.dataPoint === "deliveryId")?.valid} value={state.deliveryId} onChange={handleSelectReducer}>
+                            <option value="0">Please Select...</option>
+                            {serverOptions?.deliveryTypes?.map((type: DeliveryObject) => (
+                                <option key={type.deliveryType} value={type.id}>
+                                    {type.deliveryType}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+
+                    <label>
+                        Product Title:
+                        <input type="text" data-point="title" data-valid-alert={validInputs.find(item => item.dataPoint === "title")?.valid} value={state.title} onChange={handleInputReducer}></input>
+                        <button onClick={handleClearTitle} aria-label="Erase Title Text">
+                            X
+                        </button>
+                    </label>
+
+                    <label>
+                        Price in USD:
+                        <input type="number" step="1" inputMode="numeric" data-point="price" value={state.price} onChange={handleInputReducer} />
+                    </label>
+
+                    <label>
+                        Quantity:
+                        <input type="number" step="1" inputMode="numeric" data-point="quantity" data-valid-alert={validInputs.find(item => item.dataPoint === "quantity")?.valid} value={state.quantity} onChange={handleInputReducer}></input>
+                    </label>
+
+                    <div data-flex-col>
+                        <label>
+                            Product Description
+                            <textarea data-point="descriptionText" value={state.descriptionText} onChange={handleTextAreaReducer} />
+                        </label>
+                        <span>Characters Remaining: {state.descriptionCharacterCount} / 2000</span>
+                    </div>
                 </div>
-
+                <div data-product-specs>
+                    <Specifications propsSubId={state.subcategoryId} specificationsSignal={specificationsSignal} />
+                </div>
                 <button onClick={clickSubmitProduct}>
                     List Product
                 </button>

@@ -28,19 +28,20 @@ const reducerInitialState: ProductObject = {
   categoryId: 0,
   category: "",
   deliveryId: 0,
+  deliveryType: "",
   descriptionParagraphs: []
 }
 
 const reducer = (state: ProductObject, payload: ProductObject): typeof reducerInitialState => {
   const penniesToDollars = payload.price / 100;
-  const soldStatus = payload.sold ? "No Longer Available" : "Still Available";
+  // const soldStatus = payload.sold ? "No Longer Available" : "Still Available";
   const descriptionParagraphs: Array<string> = payload.descriptionText?.split("/n");
   const dateListed = new Date(Number(payload.dateListed)).toLocaleDateString();
 
   return {
     ...payload,
-    sold: !!soldStatus,
     price: penniesToDollars,
+    // sold: true,
     descriptionParagraphs,
     dateListed,
   };
@@ -110,14 +111,16 @@ function ProductDetails() {
         <section data-details-section aria-label="Product Details">
           <h1>{state.title}</h1>
           <div data-price>{state.price === 0 ? "$ Free $" : `$${state.price}`}</div>
-          <div data-info-box>
-            <div data-quantity>Quantity Available: {state.quantity}</div>
-            <div data-condition>Item Condition: {state.itemConditionName}</div>
-            <div data-status>Listing Status: {state.sold}</div>
-            <div data-seller>
-              Listed by <Link to={`/user/${displayName}`}>{displayName}</Link> on {state.dateListed}
-            </div>
+          <div data-seller>
+            Listed by <Link to={`/user/${displayName}`}>{displayName}</Link> on {state.dateListed}
           </div>
+          <div data-info-box>
+            <div data-quantity><span data-small>Quantity Available:</span> {state.quantity}</div>
+            <div data-condition><span data-small>Item Condition:</span> {state.itemConditionName}</div>
+            <div data-delivery><span data-small>Delivery Type:</span> {state.deliveryType}</div>
+            <div data-status><span data-small>Listing Status:</span> {state.sold ? "This item has been sold" : "Still Available"}</div>
+          </div>
+          <button data-contact-seller-button data-sold={state.sold}>{state.sold ? "No Longer Available" : "Contact Seller About Item"}</button>
         </section>
       </div>
       {state.descriptionText && (

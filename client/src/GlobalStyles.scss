@@ -61,6 +61,7 @@ body {
   --focus-color: rgb(255, 153, 0);
   $background-color: rgb(35, 35, 35);
   $font-size: 1rem;
+  --max-width: 96rem;
 
   color: var(--text-color);
   background: $background-color;
@@ -136,7 +137,7 @@ body {
 }
 
 [data-small] {
-  font-size: 90%;
+  font-size: 75%;
 }
 
 [data-flex] {

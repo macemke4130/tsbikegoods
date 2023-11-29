@@ -1,8 +1,21 @@
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
+
+  [data-product-info],
+  [data-product-specs] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  button {
+    grid-column: span 2;
+    width: fit-content;
+    margin: 0 auto;
+  }
 
   fieldset:has([data-valid-alert="false"]),
   label:has([data-valid-alert="false"]):not(fieldset label) {
@@ -21,7 +34,7 @@
 
   [data-point="descriptionText"] {
     width: 80ch;
-    height: 25ch;
+    height: 20ch;
   }
 
   [data-brand-box] {
