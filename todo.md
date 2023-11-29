@@ -2,24 +2,41 @@
 
 ## Auth
 
-- Update Auth variables from local storage to globalReducer state
 - Register page probably has some legaleze
 - Login user upon registration
 - Private route component
 
+## Product Card
+
+- Add titleTag prop for different contexts
+- Clean up interface. That all doesn't need to be there.
+
 ## Profile Page
 
-- Build
 - If current user is not profile user, shows current listings and basic info
 - If current user is logged in viewing their own profile, show more info and edit button.
   - This section is visible to only you.
-- URL should be "/user-lucasmace"
 
-## Alert User Component
+## PDP
 
-- Should be in App level or in individual components?
-- If App level, listen for window messages?
-- Is this what Redux is for?
+- Share this listing social button
+- This item viewed X times - The owner's views don't count
+- This item appeared in X search results?????
+
+## Create Listing
+
+- Build preview of PDP as user fills in listing information.
+  - Desktop only probably
+- Specifications: Delete object key if null in reducer
+- Sp
+
+## Specifications
+
+- Add "Label" and "Database Column" to SubcategoryObject
+
+## Alert User
+
+- Needs a confimation button to return a value to the component. Specifically for "Are you sure" prompts.
 
 # Metadata
 
@@ -31,7 +48,6 @@
 ## Analytics
 
 - Determine device
-- Number of times a product is viewed - Display on PDP
 - Count page views
 - Count "Contact Seller" clicks
 - Count
@@ -44,10 +60,6 @@
 - Create Listing page: If brands doesn't exist in list, create new brand
 - newProduct: Needs list date, number of views since listing
 
-## Profile
-
-- Default Physical Location - Used for "local pickup" items
-
 ## PLP
 
 - List all
@@ -55,8 +67,6 @@
 - Navigation: Show per item type
 
 ## Routing
-
-- React Router? Somthing newer?
 
 ## Database
 
@@ -91,7 +101,7 @@
 - Come up with a way that they won't suck
 - Review of seller performance
 - X stars in the last 90 days
-- Review to Sold Items ratio must be 1:1
+- Review to Sold Items ratio must be 1:1 at most
 
 ## Search
 

@@ -32,6 +32,15 @@ export const schema = buildSchema(`
     newGood (jwt: String!, brand: Int, title: String!, quantity: Int, descriptionText: String, descriptionId: Int, price: Int, itemCondition: Int, deliveryId: Int, categoryId: Int, subcategoryId: Int): mysqlResponse
     newDescription (descriptionText: String): mysqlResponse
     newBrand (brandName: String!): mysqlResponse
+
+    newCrankset (productId: Int!,
+      crankLength: Float,
+      ringType: Int,
+      spindleType: Int,
+      spindleLength: Float,
+      pedalThreadSize: String,
+      bcd: Float,
+      speed: Int,): mysqlResponse
   }
 
   type Category {
@@ -244,7 +253,7 @@ export const root = {
   },
   newGood: async (args, req) => {
     const authUserId = await jsonwebtoken.default.verify(args.jwt, privateKey, function (err, decoded) {
-      return decoded.data.userId;
+      return decoded.data.id;
     });
 
     delete args.jwt;
@@ -261,11 +270,14 @@ export const root = {
     delete args.descriptionText;
 
     const r = await query("insert into goods set ?", [args]);
-    console.log(r);
     return r;
   },
   newDescription: async (args, req) => {
     const r = await query("insert into goodDescriptions set ?", [args]);
+    return r;
+  },
+  newCrankset: async (args, req) => {
+    const r = await query("insert into cranksets set ?", [args]);
     return r;
   },
   productDetails: async (args, req) => {
